@@ -27,6 +27,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/secrets-store-csi-driver/pkg/util/spcutil"
 
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
@@ -284,6 +285,13 @@ func (r *SecretProviderClassPodStatusReconciler) Reconcile(ctx context.Context, 
 	}
 
 	files, err := fileutil.GetMountedFiles(spcPodStatus.Status.TargetPath)
+
+	for _, secretObj := range spc.Spec.SecretObjects {
+		if secretObj.SyncAll {
+			spcutil.BuildSecretObjectData(files, secretObj)
+		}
+	}
+
 	if err != nil {
 		r.generateEvent(pod, corev1.EventTypeWarning, secretCreationFailedReason, fmt.Sprintf("failed to get mounted files, err: %+v", err))
 		klog.ErrorS(err, "failed to get mounted files", "spc", klog.KObj(spc), "pod", klog.KObj(pod), "spcps", klog.KObj(spcPodStatus))

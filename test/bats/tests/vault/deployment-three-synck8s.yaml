@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busybox-deployment-three
+  labels:
+    app: busybox-sync-all
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: busybox-sync-all
+  template:
+    metadata:
+      labels:
+        app: busybox-sync-all
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+      - image: k8s.gcr.io/e2e-test-images/busybox:1.29
+        name: busybox-sync-all
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/bin/sleep"
+        - "10000"
+        env:
+        - name: SECRET_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: foosecret
+              key: bar
+        - name: SECRET_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: foosecret
+              key: bar1
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "vault-foo-sync-all"

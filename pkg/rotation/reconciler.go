@@ -53,6 +53,7 @@ import (
 	"sigs.k8s.io/secrets-store-csi-driver/pkg/util/fileutil"
 	"sigs.k8s.io/secrets-store-csi-driver/pkg/util/k8sutil"
 	"sigs.k8s.io/secrets-store-csi-driver/pkg/util/secretutil"
+	"sigs.k8s.io/secrets-store-csi-driver/pkg/util/spcutil"
 	"sigs.k8s.io/secrets-store-csi-driver/pkg/version"
 )
 
@@ -433,6 +434,13 @@ func (r *Reconciler) reconcile(ctx context.Context, spcps *v1alpha1.SecretProvid
 		return nil
 	}
 	files, err := fileutil.GetMountedFiles(spcps.Status.TargetPath)
+
+	for _, secretObj := range spc.Spec.SecretObjects {
+		if secretObj.SyncAll {
+			spcutil.BuildSecretObjectData(files, secretObj)
+		}
+	}
+
 	if err != nil {
 		r.generateEvent(pod, v1.EventTypeWarning, k8sSecretRotationFailedReason, fmt.Sprintf("failed to get mounted files, err: %+v", err))
 		return fmt.Errorf("failed to get mounted files, err: %+v", err)
@@ -543,8 +551,10 @@ func (r *Reconciler) patchSecret(ctx context.Context, name, namespace string, da
 	if err != nil {
 		return fmt.Errorf("failed to marshal old secret, err: %+v", err)
 	}
+
 	secret.Data = data
 	newData, err := json.Marshal(&newSecret)
+
 	if err != nil {
 		return fmt.Errorf("failed to marshal new secret, err: %+v", err)
 	}
