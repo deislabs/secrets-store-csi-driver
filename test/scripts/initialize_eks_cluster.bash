@@ -37,4 +37,8 @@ eksctl create iamserviceaccount \
      --approve \
      --region $AWS_REGION
 
-REGISTRY=$ECR_REGISTRY_URL make e2e-helm-deploy
+if [[ -z "${RELEASE}" ]]; then
+  REGISTRY=$ECR_REGISTRY_URL make e2e-helm-deploy
+else
+  REGISTRY=$ECR_REGISTRY_URL make e2e-helm-deploy-release
+fi
