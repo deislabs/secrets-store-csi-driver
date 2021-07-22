@@ -6,21 +6,53 @@ Prometheus is the only exporter that's currently supported with the driver.
 
 ## List of metrics provided by the driver
 
-| Metric                          | Description                                                               | Tags                                                                              |
-| ------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| total_node_publish              | Total number of successful volume mount requests                          | `os_type=<runtime os>`<br>`provider=<provider name>`                              |
-| total_node_unpublish            | Total number of successful volume unmount requests                        | `os_type=<runtime os>`                                                            |
-| total_node_publish_error        | Total number of errors with volume mount requests                         | `os_type=<runtime os>`<br>`provider=<provider name>`<br>`error_type=<error code>` |
-| total_node_unpublish_error      | Total number of errors with volume unmount requests                       | `os_type=<runtime os>`                                                            |
-| total_sync_k8s_secret           | Total number of k8s secrets synced                                        | `os_type=<runtime os>`<br>`provider=<provider name>`                              |
-| sync_k8s_secret_duration_sec    | Distribution of how long it took to sync k8s secret                       | `os_type=<runtime os>`                                                            |
-| total_rotation_reconcile        | Total number of rotation reconciles                                       | `os_type=<runtime os>`<br>`rotated=<true or false>`                               |
-| total_rotation_reconcile_error  | Total number of rotation reconciles with error                            | `os_type=<runtime os>`<br>`rotated=<true or false>`<br>`error_type=<error code>`  |
-| rotation_reconcile_duration_sec | Distribution of how long it took to rotate secrets-store content for pods | `os_type=<runtime os>`                                                            |
+| Metric                           | Description                                                               | Tags                                                                                                                                                                                                                 |
+| -------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| total_node_publish               | Total number of successful volume mount requests                          | `os_type=<runtime os>`<br>`provider=<provider name>`                                                                                                                                                                 |
+| total_node_unpublish             | Total number of successful volume unmount requests                        | `os_type=<runtime os>`                                                                                                                                                                                               |
+| total_node_publish_error         | Total number of errors with volume mount requests                         | `os_type=<runtime os>`<br>`provider=<provider name>`<br>`error_type=<error code>`                                                                                                                                    |
+| total_node_unpublish_error       | Total number of errors with volume unmount requests                       | `os_type=<runtime os>`                                                                                                                                                                                               |
+| total_sync_k8s_secret            | Total number of k8s secrets synced                                        | `os_type=<runtime os>`<br>`provider=<provider name>`                                                                                                                                                                 |
+| sync_k8s_secret_duration_sec     | Distribution of how long it took to sync k8s secret                       | `os_type=<runtime os>`                                                                                                                                                                                               |
+| total_rotation_reconcile         | Total number of rotation reconciles                                       | `os_type=<runtime os>`<br>`rotated=<true or false>`                                                                                                                                                                  |
+| total_rotation_reconcile_error   | Total number of rotation reconciles with error                            | `os_type=<runtime os>`<br>`rotated=<true or false>`<br>`error_type=<error code>`                                                                                                                                     |
+| rotation_reconcile_duration_sec  | Distribution of how long it took to rotate secrets-store content for pods | `os_type=<runtime os>`                                                                                                                                                                                               |
+| kube_secretproviderclass_info    | Information about SecretProviderClass                                     | `os_type=<runtime os>`<br>`secretproviderclass=<secretproviderclass name>`<br>`namespace=<namespace>`                                                                                                                |
+| kube_secretproviderclass_type    | Type about SecretProviderClass                                            | `os_type=<runtime os>`<br>`secretproviderclass=<secretproviderclass name>`<br>`namespace=<namespace>`<br>`secret_name=<secret object name>`<br>`secret_type_NAME=<secret object type>`<br>`provider=<provider name>` |
+| kube_secretproviderclass_labels  | Kubernetes labels converted to Prometheus labels                          | `os_type=<runtime os>`<br>`secretproviderclass=<secretproviderclass name>`<br>`namespace=<namespace>`<br>`label_LABEL=<value>`                                                                                       |
+| kube_secretproviderclass_created | Unix creation timestamp                                                   | `os_type=<runtime os>`<br>`secretproviderclass=<secretproviderclass name>`<br>`namespace=<namespace>`                                                                                                                |
 
 ### Sample Metrics output
 
 ```shell
+# HELP kube_secretproviderclass_created Unix creation timestamp
+# TYPE kube_secretproviderclass_created gauge
+kube_secretproviderclass_created{namespace="default",os_type="linux",secretproviderclass="vault-foo"} 1.6260898e+09
+kube_secretproviderclass_created{namespace="default",os_type="linux",secretproviderclass="vault-foo-sync"} 1.626089808e+09
+kube_secretproviderclass_created{namespace="default",os_type="linux",secretproviderclass="vault-foo-sync-0"} 1.626089818e+09
+kube_secretproviderclass_created{namespace="default",os_type="linux",secretproviderclass="vault-foo-sync-1"} 1.626089818e+09
+kube_secretproviderclass_created{namespace="test-ns",os_type="linux",secretproviderclass="vault-foo-sync"} 1.626089808e+09
+# HELP kube_secretproviderclass_info Information about SecretProviderClass
+# TYPE kube_secretproviderclass_info gauge
+kube_secretproviderclass_info{namespace="default",os_type="linux",secretproviderclass="vault-foo"} 1
+kube_secretproviderclass_info{namespace="default",os_type="linux",secretproviderclass="vault-foo-sync"} 1
+kube_secretproviderclass_info{namespace="default",os_type="linux",secretproviderclass="vault-foo-sync-0"} 1
+kube_secretproviderclass_info{namespace="default",os_type="linux",secretproviderclass="vault-foo-sync-1"} 1
+kube_secretproviderclass_info{namespace="test-ns",os_type="linux",secretproviderclass="vault-foo-sync"} 1
+# HELP kube_secretproviderclass_labels Kubernetes labels converted to OpenTelemetry labels
+# TYPE kube_secretproviderclass_labels gauge
+kube_secretproviderclass_labels{namespace="default",os_type="linux",secretproviderclass="vault-foo"} 1
+kube_secretproviderclass_labels{namespace="default",os_type="linux",secretproviderclass="vault-foo-sync-0"} 1
+kube_secretproviderclass_labels{namespace="default",os_type="linux",secretproviderclass="vault-foo-sync-1"} 1
+kube_secretproviderclass_labels{namespace="test-ns",os_type="linux",secretproviderclass="vault-foo-sync"} 1
+kube_secretproviderclass_labels{label_a="b",label_c="d",namespace="default",os_type="linux",secretproviderclass="vault-foo-sync"} 1
+# HELP kube_secretproviderclass_type Type about SecretProviderClass
+# TYPE kube_secretproviderclass_type gauge
+kube_secretproviderclass_type{namespace="default",os_type="linux",provider="vault",secretproviderclass="vault-foo"} 1
+kube_secretproviderclass_type{namespace="default",os_type="linux",provider="invalidprovider",secret_name="foosecret",secret_type_foosecret="Opaque",secretproviderclass="vault-foo-sync"} 1
+kube_secretproviderclass_type{namespace="default",os_type="linux",provider="vault",secret_name="foosecret-0",secret_type_foosecret_0="Opaque",secretproviderclass="vault-foo-sync-0"} 1
+kube_secretproviderclass_type{namespace="default",os_type="linux",provider="vault",secret_name="foosecret-1",secret_type_foosecret_1="Opaque",secretproviderclass="vault-foo-sync-1"} 1
+kube_secretproviderclass_type{namespace="test-ns",os_type="linux",provider="vault",secret_name="foosecret",secret_type_foosecret="Opaque",secretproviderclass="vault-foo-sync"} 1
 # HELP sync_k8s_secret_duration_sec Distribution of how long it took to sync k8s secret
 # TYPE sync_k8s_secret_duration_sec histogram
 sync_k8s_secret_duration_sec_bucket{os_type="linux",le="0.1"} 0

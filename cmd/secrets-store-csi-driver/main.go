@@ -146,6 +146,10 @@ func main() {
 	if err != nil {
 		klog.Fatalf("failed to start manager, error: %+v", err)
 	}
+	err = mgr.Add(metrics.NewSecretProviderClassReporter(mgr.GetClient()))
+	if err != nil {
+		klog.Fatalf("failed to start secretproviderclass reporter, error: %+v", err)
+	}
 
 	reconciler, err := controllers.New(mgr, *nodeID)
 	if err != nil {
