@@ -19,16 +19,29 @@ Publishing involves creating a release tag and creating a new Release on GitHub.
 
 ## Versioning
 
+1. Make sure that the `docs` include all necessary information included in the release (example [tag compare](https://github.com/kubernetes-sigs/secrets-store-csi-driver/compare/v0.0.21...master)).
+1. Create a new release branch `release-X.X`
+
+    ```bash
+    # TODO
+    ```
+    
 1. Update the version to the semantic version of the new release similar to [this](https://github.com/kubernetes-sigs/secrets-store-csi-driver/pull/251)
-1. Commit the changes and push to remote repository to create a pull request
+1. Commit the changes and push to remote repository to create a pull request to the `master` branch
 
     ```bash
     git checkout -b bump-version-<NEW VERSION>
     git commit -m "Bump versions for <NEW VERSION>"
     git push <YOUR FORK>
     ```
-  
-1. Once the PR is merged to master, the [prow job](https://testgrid.k8s.io/sig-auth-secrets-store-csi-driver#secrets-store-csi-driver-push-image) is triggered to build and push the new version to staging repo (`gcr.io/k8s-staging-csi-secrets-store/driver`)
+
+1. Cherry-pick the bump to the `release-X.X` branch
+
+    ```bash
+    # TODO
+    ```
+
+1. Once the PR is merged to `release-X.X`, the [prow job](https://testgrid.k8s.io/sig-auth-secrets-store-csi-driver#secrets-store-csi-driver-push-image) is triggered to build and push the new version to staging repo (`gcr.io/k8s-staging-csi-secrets-store/driver`)
 1. Once the prow job completes, follow the [instructions](https://github.com/kubernetes/k8s.io/tree/main/k8s.gcr.io#image-promoter) to promote the image to production repo
     - Run generate script to append the new image to promoter manifest
 
@@ -67,7 +80,13 @@ Publishing involves creating a release tag and creating a new Release on GitHub.
     git push <YOUR FORK>
     ```
 
-1. Once the PR is merged to master, tag master with release version and push tags to remote repository.
+1. Once the PR is merged to `master`, cherry pick the commit to the `release-X.X` branch:
+
+    ```bash
+    # TODO
+    ```
+
+1. Once the PR is merged to `release-X.X`, tag `release-X.X` with release version and push tags to remote repository.
     - An [OWNER](https://github.com/kubernetes-sigs/secrets-store-csi-driver/blob/master/OWNERS) runs git tag and pushes the tag with git push
 
    ```bash
@@ -80,6 +99,6 @@ Publishing involves creating a release tag and creating a new Release on GitHub.
 ## Publishing
 
 1. Create a draft release in GitHub and associate it with the tag that was just created
-2. Collect release notes (example [tag compare](https://github.com/kubernetes-sigs/secrets-store-csi-driver/compare/v0.0.21...master))
-3. Write the release notes similar to [this](https://github.com/kubernetes-sigs/secrets-store-csi-driver/releases/tag/v0.0.12) and upload all the artifacts from the `deploy/` dir
-4. Publish release
+1. Collect release notes (example [tag compare](https://github.com/kubernetes-sigs/secrets-store-csi-driver/compare/v0.0.21...master))
+1. Write the release notes similar to [this](https://github.com/kubernetes-sigs/secrets-store-csi-driver/releases/tag/v0.0.12) and upload all the artifacts from the `deploy/` dir
+1. Publish release
