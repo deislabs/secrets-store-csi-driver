@@ -1,6 +1,6 @@
 run:
   timeout: 5m
-  skip-dirs:
+  skip-dirs: []
   skip-files:
   - "zz_generated.*\\.go$"
 
@@ -11,7 +11,7 @@ linters:
     - gofmt
     - goimports
     - gosimple
-    - golint
+    - revive
     - govet
     - gosec
     - ineffassign
@@ -21,3 +21,14 @@ linters:
     - varcheck
   # Run with --fast=false for more extensive checks (enables all linters)
   fast: true
+
+issues:
+  # default: 50
+  max-issues-per-linter: 0
+
+  # default: 3
+  max-same-issues: 0
+
+severity:
+  # default: ''
+  default-severity: error

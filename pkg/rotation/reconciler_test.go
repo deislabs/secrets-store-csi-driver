@@ -627,14 +627,12 @@ func TestReconcileNoError(t *testing.T) {
 		g.Expect(err).NotTo(HaveOccurred())
 
 		// validate the secret provider class pod status versions have been updated
-		updatedSPCPodStatus := &v1alpha1.SecretProviderClassPodStatus{}
-		updatedSPCPodStatus, err = crdClient.SecretsstoreV1alpha1().SecretProviderClassPodStatuses(v1.NamespaceDefault).Get(context.TODO(), "pod1-default-spc1", metav1.GetOptions{})
+		updatedSPCPodStatus, err := crdClient.SecretsstoreV1alpha1().SecretProviderClassPodStatuses(v1.NamespaceDefault).Get(context.TODO(), "pod1-default-spc1", metav1.GetOptions{})
 		g.Expect(err).NotTo(HaveOccurred())
 		g.Expect(updatedSPCPodStatus.Status.Objects).To(Equal([]v1alpha1.SecretProviderClassObject{{ID: "secret/object1", Version: "v2"}}))
 
 		// validate the secret data has been updated to the latest value
-		updatedSecret := &v1.Secret{}
-		updatedSecret, err = kubeClient.CoreV1().Secrets(v1.NamespaceDefault).Get(context.TODO(), "foosecret", metav1.GetOptions{})
+		updatedSecret, err := kubeClient.CoreV1().Secrets(v1.NamespaceDefault).Get(context.TODO(), "foosecret", metav1.GetOptions{})
 		g.Expect(err).NotTo(HaveOccurred())
 		g.Expect(updatedSecret.Data["foo"]).To(Equal([]byte("newdata")))
 
@@ -773,9 +771,8 @@ func TestPatchSecret(t *testing.T) {
 			}
 
 			if !test.expectedErr {
-				secret := &v1.Secret{}
 				// check the secret data is what we expect it to
-				secret, err = kubeClient.CoreV1().Secrets(v1.NamespaceDefault).Get(context.TODO(), test.secretName, metav1.GetOptions{})
+				secret, err := kubeClient.CoreV1().Secrets(v1.NamespaceDefault).Get(context.TODO(), test.secretName, metav1.GetOptions{})
 				g.Expect(err).NotTo(HaveOccurred())
 				g.Expect(secret.Data).To(Equal(test.expectedSecretData))
 			}

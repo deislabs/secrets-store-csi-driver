@@ -407,14 +407,14 @@ func TestWritePayloads_BackwardCompatible(t *testing.T) {
 
 	// write a file simulating the provider-style file writing
 	path := filepath.Join(dir, "foo.txt")
-	if err := os.WriteFile(path, []byte("old"), 0777); err != nil {
+	if err := os.WriteFile(path, []byte("old"), 0600); err != nil {
 		t.Fatalf("could not write old file: %s", err)
 	}
 
 	payload := []*v1alpha1.File{
 		{
 			Path:     "foo.txt",
-			Mode:     0777,
+			Mode:     0600,
 			Contents: []byte("new"),
 		},
 	}
