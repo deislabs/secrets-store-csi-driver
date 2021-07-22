@@ -27,8 +27,8 @@ IMAGE_NAME ?= driver
 CRD_IMAGE_NAME ?= driver-crds
 # Release version is the current supported release for the driver
 # Update this version when the helm chart is being updated for release
-RELEASE_VERSION := v0.0.23
-IMAGE_VERSION ?= v0.1.0-rc.0
+RELEASE_VERSION := v0.1.0
+IMAGE_VERSION ?= v0.1.0
 # Use a custom version for E2E tests if we are testing in CI
 ifdef CI
 override IMAGE_VERSION := v0.1.0-e2e-$(BUILD_COMMIT)
