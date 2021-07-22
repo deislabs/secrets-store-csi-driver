@@ -2,8 +2,6 @@
 
 This page includes instructions for upgrading the driver to the latest version.
 
->**NOTE**: [CustomResourceDefinitions](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) (CRDs) have been moved from `templates` to `crds` directory in the helm charts. To manage the lifecycle of the CRDs during install/upgrade, helm `pre-install` and `pre-upgrade` hook has been added. This hook will create a pod that runs only on **linux** nodes and deploys the CRDs in the Kubernetes cluster.
-
 ```bash
 helm upgrade csi-secrets-store secrets-store-csi-driver/secrets-store-csi-driver --namespace=NAMESPACE
 ```
@@ -13,6 +11,29 @@ Set `NAMESPACE` to the same namespace where the driver was originally installed,
 
 If you are upgrading from one of the following versions there may be additional
 steps that you should take.
+
+## pre `v0.1.0`
+
+>**NOTE**: [CustomResourceDefinitions](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) (CRDs) have been moved from `templates` to `crds` directory in the helm charts. To manage the lifecycle of the CRDs during install/upgrade, helm `pre-install` and `pre-upgrade` hook has been added. This hook will create a pod that runs only on **linux** nodes and deploys the CRDs in the Kubernetes cluster.
+
+In case there is an issue with these hooks we recommend backing up your
+`SecretProviderClass`es in case of any issues with the hooks:
+
+```bash
+kubectl get secretproviderclass -A -o yaml > spc-all-backup.yaml
+```
+
+The filtered watch feature is enabled by default in `v0.1.0` (see
+[#550](https://github.com/kubernetes-sigs/secrets-store-csi-driver/issues/550)).
+All existing `nodePublishSecretRef` Kubernetes Secrets used in volume mounts
+must have the `secrets-store.csi.k8s.io/used=true` label otherwise secret
+rotations will fail with `failed to get node publish secret` errors.
+
+Label these Kubernetes Secrets by running:
+
+```bash
+kubectl label secret <node publish secret ref name> secrets-store.csi.k8s.io/used=true
+```
 
 ## pre `v0.0.23`
 
