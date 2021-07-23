@@ -51,6 +51,8 @@ type SecretObject struct {
 	// annotations of k8s secret object
 	Annotations map[string]string   `json:"annotations,omitempty"`
 	Data        []*SecretObjectData `json:"data,omitempty"`
+	// SyncAll can sync all secrets defined in the parameters field of SecretProviderClass
+	SyncAll bool `json:"syncAll,omitempty"`
 }
 
 // SecretProviderClassSpec defines the desired state of SecretProviderClass

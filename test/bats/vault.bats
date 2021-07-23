@@ -206,6 +206,66 @@ EOF
   assert_success
 }
 
+@test "Sync with K8s secrets using SyncAll - create deployment" {
+  kubectl apply -f $BATS_TESTS_DIR/vault_synck8s_syncall_v1alpha1_secretproviderclass.yaml
+  kubectl wait --for condition=established --timeout=60s crd/secretproviderclasses.secrets-store.csi.x-k8s.io
+
+  cmd="kubectl get secretproviderclasses.secrets-store.csi.x-k8s.io/vault-foo-sync-all -o yaml | grep vault"
+  wait_for_process $WAIT_TIME $SLEEP_TIME "$cmd"
+
+  run kubectl apply -f $BATS_TESTS_DIR/deployment-three-synck8s.yaml
+  assert_success
+
+  kubectl wait --for=condition=Ready --timeout=120s pod -l app=busybox-sync-all
+}
+
+@test "Sync with K8s secrets using SyncAll - read secret from pod, read K8s secret, read env var, check secret ownerReferences with multiple owners" {
+  POD=$(kubectl get pod -l app=busybox-sync-all -o jsonpath="{.items[0].metadata.name}")
+  result=$(kubectl exec $POD -- cat /mnt/secrets-store/bar)
+  [[ "$result" == "hello" ]]
+
+  result=$(kubectl exec $POD -- cat /mnt/secrets-store/bar1)
+  [[ "$result" == "hello1" ]]
+
+  result=$(kubectl exec $POD -- cat /mnt/secrets-store/nested/bar)
+  [[ "$result" == "hello" ]]
+
+  result=$(kubectl get secret foosecret -o jsonpath="{.data.bar}" | base64 -d)
+  [[ "$result" == "hello" ]]
+
+  result=$(kubectl get secret foosecret -o jsonpath="{.data.bar1}" | base64 -d)
+  [[ "$result" == "hello1" ]]
+
+  result=$(kubectl get secret foosecret -o jsonpath="{.data.nested_bar}" | base64 -d)
+  [[ "$result" == "hello" ]]
+
+  result=$(kubectl exec $POD -- printenv | grep SECRET_USERNAME | awk -F"=" '{ print $2 }' | tr -d '\r\n')
+  [[ "$result" == "hello" ]]
+  
+  result=$(kubectl exec $POD -- printenv | grep SECRET_PASSWORD | awk -F"=" '{ print $2 }' | tr -d '\r\n')
+  [[ "$result" == "hello1" ]]
+
+  result=$(kubectl get secret foosecret -o jsonpath="{.metadata.labels.environment}")
+  [[ "${result//$'\r'}" == "${LABEL_VALUE}" ]]
+
+  result=$(kubectl get secret foosecret -o jsonpath="{.metadata.labels.secrets-store\.csi\.k8s\.io/managed}")
+  [[ "${result//$'\r'}" == "true" ]]
+
+  run wait_for_process $WAIT_TIME $SLEEP_TIME "compare_owner_count foosecret default 1"
+  assert_success
+}
+
+@test "Sync with K8s secrets using SyncAll - delete deployment, check secret is deleted" {
+  run kubectl delete -f $BATS_TESTS_DIR/deployment-three-synck8s.yaml
+  assert_success
+
+  run wait_for_process $WAIT_TIME $SLEEP_TIME "check_secret_deleted foosecret default"
+  assert_success
+
+  run kubectl delete -f $BATS_TESTS_DIR/vault_synck8s_syncall_v1alpha1_secretproviderclass.yaml
+  assert_success
+}
+
 @test "Test Namespaced scope SecretProviderClass - create deployment" {
   kubectl create ns test-ns
 
