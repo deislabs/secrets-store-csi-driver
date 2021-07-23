@@ -388,8 +388,9 @@ e2e-helm-upgrade:
 		--set linux.image.repository=$(REGISTRY)/$(IMAGE_NAME) \
 		--set linux.image.tag=$(IMAGE_VERSION) \
 		--set windows.image.repository=$(REGISTRY)/$(IMAGE_NAME) \
-		--set windows.image.tag=$(IMAGE_VERSION)
-	kubectl apply -f manifest_staging/charts/secrets-store-csi-driver/crds/
+		--set windows.image.tag=$(IMAGE_VERSION) \
+		--set linux.crds.image.repository=$(REGISTRY)/$(CRD_IMAGE_NAME) \
+		--set linux.crds.image.tag=$(IMAGE_VERSION)
 
 .PHONY: e2e-helm-deploy-release # test helm package for the release
 e2e-helm-deploy-release:
