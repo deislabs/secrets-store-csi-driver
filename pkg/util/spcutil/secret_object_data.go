@@ -25,7 +25,7 @@ func BuildSecretObjectData(files map[string]string, secretObj *v1alpha1.SecretOb
 		}
 
 		secretObj.Data = append(secretObj.Data, &v1alpha1.SecretObjectData{
-			ObjectName: renamedKey,
+			ObjectName: key,
 			Key:        renamedKey,
 		})
 

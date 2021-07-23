@@ -36,7 +36,7 @@ func TestBuildSecretObjectData(t *testing.T) {
 				Key:        "password",
 			},
 			{
-				ObjectName: "nested_username",
+				ObjectName: "nested/username",
 				Key:        "nested_username",
 			},
 		},

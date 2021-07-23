@@ -206,7 +206,7 @@ EOF
   assert_success
 }
 
-@test "Sync all mounted secrets with K8s secrets - create deployment" {
+@test "Sync with K8s secrets using SyncAll - create deployment" {
   kubectl apply -f $BATS_TESTS_DIR/vault_synck8s_syncall_v1alpha1_secretproviderclass.yaml
   kubectl wait --for condition=established --timeout=60s crd/secretproviderclasses.secrets-store.csi.x-k8s.io
 
@@ -219,7 +219,7 @@ EOF
   kubectl wait --for=condition=Ready --timeout=120s pod -l app=busybox-sync-all
 }
 
-@test "Sync all mounted secrets with K8s secrets - read secret from pod, read K8s secret, read env var, check secret ownerReferences with multiple owners" {
+@test "Sync with K8s secrets using SyncAll - read secret from pod, read K8s secret, read env var, check secret ownerReferences with multiple owners" {
   POD=$(kubectl get pod -l app=busybox-sync-all -o jsonpath="{.items[0].metadata.name}")
   result=$(kubectl exec $POD -- cat /mnt/secrets-store/bar)
   [[ "$result" == "hello" ]]
@@ -255,7 +255,7 @@ EOF
   assert_success
 }
 
-@test "Sync all mounted K8s secrets - delete deployment, check secret is deleted" {
+@test "Sync with K8s secrets using SyncAll - delete deployment, check secret is deleted" {
   run kubectl delete -f $BATS_TESTS_DIR/deployment-three-synck8s.yaml
   assert_success
 
