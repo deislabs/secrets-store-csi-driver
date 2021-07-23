@@ -403,6 +403,12 @@ setup() {
   run helm upgrade csi-secrets-store "${chart_dir}" --reuse-values --set filteredWatchSecret=false --wait --timeout=5m -v=5 --debug --namespace kube-system
   assert_success
 
+  cmd="kubectl get crd secretproviderclasses.secrets-store.csi.x-k8s.io -o yaml | grep 'helm.sh/resource-policy: keep'"
+  wait_for_process $WAIT_TIME $SLEEP_TIME "$cmd"
+
+  cmd="kubectl get crd secretproviderclasspodstatuses.secrets-store.csi.x-k8s.io -o yaml | grep 'helm.sh/resource-policy: keep'"
+  wait_for_process $WAIT_TIME $SLEEP_TIME "$cmd"
+
   kubectl create ns non-filtered-watch
   kubectl create secret generic secrets-store-creds --from-literal clientid=${AZURE_CLIENT_ID} --from-literal clientsecret=${AZURE_CLIENT_SECRET} -n non-filtered-watch
 
